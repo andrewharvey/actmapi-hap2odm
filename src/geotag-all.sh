@@ -2,8 +2,9 @@
 
 set -e
 
-# for each image
-for image in jpg/*/*/*/*/*.jpg; do
+geotag() {
+    image=$1
+
     year=`echo $image | cut -d'/' -f4`
     run=`echo $image | cut -d'/' -f5`
     file=`echo $image | cut -d'/' -f6`
@@ -24,4 +25,7 @@ for image in jpg/*/*/*/*/*.jpg; do
     ./src/feature-gps.js $year/$run/$photo $feature $image $output
 
     rm -f $feature
-done
+}
+export -f geotag
+
+find jpg -name '*.jpg' | parallel --bar --eta --jobs 200% geotag
