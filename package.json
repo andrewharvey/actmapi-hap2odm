@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "p-limit": "^5.0.0"
+  }
 }

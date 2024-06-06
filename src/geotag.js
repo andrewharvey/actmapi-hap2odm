@@ -3,10 +3,14 @@
 import { readdir, readFile, appendFile, lstat, mkdir } from 'node:fs/promises'
 import { exit } from 'node:process'
 import { join } from 'node:path'
+import pLimit from 'p-limit'
 
 import util from 'node:util'
 import { execFile } from 'node:child_process'
 const execFilePromise = util.promisify(execFile);
+
+const limit = pLimit(16)
+const tasks = []
 
 const footprintsInfoFile = 'HAP_Footprints.info.json'
 const photosRoot = 'jpg/www.actmapi.act.gov.au/hap'
@@ -40,7 +44,7 @@ for (const year of years) {
 
         if (!feature?.geometry?.coordinates || !feature.geometry.coordinates.length) {
           console.log(`No footprint polygon for ${id}`)
-          await appendFile('feature-gps.missing.log', `${id}\n`);
+          await appendFile('feature-gps.missing-footprint.log', `${id}\n`);
         } else {
 
           // given a footprint Polygon
@@ -58,19 +62,29 @@ for (const year of years) {
           const img_output = join('geotagged', year, run, `${photo}.jpg`)
           await mkdir(join('geotagged', year, run), { recursive: true })
 
+          const index = tasks.length
           // use setexif.pl to set the EXIF tags
-          const { stdout, stderr } = await execFilePromise('./src/setexif.pl', ['--input', img_input, '--output', img_output, '--lat', lat, '--lon', lon, '--alt', alt])
+          tasks.push(limit(async () => {
+            const { stdout, stderr } = await execFilePromise('./src/setexif.pl', ['--input', img_input, '--output', img_output, '--lat', lat, '--lon', lon, '--alt', alt])
 
-          if (stderr) {
-            console.log(stdout)
-            console.error(stderr)
-            exit(1)
-          }
+            process.stdout.write(`${index}\r`)
+
+            if (stderr) {
+              console.log(stdout)
+              console.error(stderr)
+              await appendFile('geotag.setexif-error.log', `${id}\n`);
+            }
+          }))
         }
       } else {
         console.log(`No footprint feature for ${id}`)
-        await appendFile('feature-gps.missing.log', `${id}\n`);
+        await appendFile('geotag.missing-footprint.log', `${id}\n`);
       }
     }
   }
 }
+
+console.log(`${tasks.length} tasks`)
+await Promise.all(tasks)
+
+process.stdout.write('\n')
