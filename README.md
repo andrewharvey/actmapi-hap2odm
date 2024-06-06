@@ -25,4 +25,4 @@ Fetch imagery footprints
 
 Geotag each image based on the footprint center
 
-    ./src/geotag-all.sh
+    ./src/geotag.sh
