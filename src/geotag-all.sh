@@ -21,7 +21,7 @@ for image in jpg/*/*/*/*/*.jpg; do
     mkdir -p geotagged/$year
 
     # geotag the JPEG from the GeoJSON Feature
-    ./src/feature-gps.js $feature $image $output
+    ./src/feature-gps.js $year/$run/$photo $feature $image $output
 
     rm -f $feature
 done

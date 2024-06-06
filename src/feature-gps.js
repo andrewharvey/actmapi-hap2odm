@@ -1,16 +1,24 @@
 #!/usr/bin/env node
 
-import { readFile } from 'node:fs/promises'
-import { argv } from 'node:process'
+import { readFile, appendFile } from 'node:fs/promises'
+import { argv, exit } from 'node:process'
 
 import util from 'node:util'
 import { execFile } from 'node:child_process'
 const execFilePromise = util.promisify(execFile);
 
-const input = argv[2]
-const img_input = argv[3]
-const img_output = argv[4]
+const id = argv[2]
+const input = argv[3]
+const img_input = argv[4]
+const img_output = argv[5]
 const feature = JSON.parse(await readFile(input, { encoding: 'utf8' }))
+
+if (!feature?.geometry?.coordinates || !feature.geometry.coordinates.length) {
+  console.log(`No footprint polygon for ${id}`)
+  await fs.appendFile('feature-gps.missing.log', `${id}\n`);
+  exit()
+}
+
 
 // given a footprint Polygon
 const ring = feature.geometry.coordinates[0]
