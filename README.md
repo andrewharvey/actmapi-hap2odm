@@ -1,5 +1,5 @@
 # actmapi-hap2odm
-Project to process ACTmapi HAP Imagery with OpenDroneMap.
+Process ACTmapi HAP Imagery with OpenDroneMap
 
 Install dependencies
 

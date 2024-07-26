@@ -1,6 +1,6 @@
 {
   "name": "actmapi-hap2odm",
-  "description": "Project to process ACTmapi HAP Imagery with OpenDroneMap",
+  "description": "Process ACTmapi HAP Imagery with OpenDroneMap",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
